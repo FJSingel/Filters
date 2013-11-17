@@ -16,28 +16,46 @@ class Filter(object):
     Parent class for other filters
     """
 
-    def __init__(self):
+    def __init__(self, size):
         """
         Constructor............................
         """
-        pass
+        self.memory_size = size
+        self.short = []
+        self.long = []
+        print "Initted with size of: " + str(self.memory_size)
         
     def reset(self):
         """
         Resets the values previous input so far
         """
+        #return values first
+        self.short = []
+        self.long = []
+        print "Reset"
+
+    def add(self, value):
+        """
+        Adds a value to the filter
+        """
+        if len(self.short) >= self.memory_size:
+            print "Forgot" + str(short[0])
+            self.short = self.short[1:]
+
+        self.short.append(value)
+        self.long.append(value)
+        print ("Added" + str(value))
+
+class MaxFilter(Filter):
+    pass
+
+class MinFilter(Filter):
+    pass
+
+class AvgFilter(Filter):
+    pass
+
+class CascadeFilter(Filter):
+
+    def __init__(self, first_filter, second_filter):
         pass
-
-    def 
-
-class MaxFilter(Filter, size):
-    pass
-
-class MinFilter(Filter, size):
-    pass
-
-class AvgFilter(Filter, size):
-    pass
-
-class CascadeFilter(Filter, first_filter, second_filter):
-    pass
