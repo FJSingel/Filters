@@ -22,57 +22,129 @@ class BasisTests(TestCase):
     """
     Tests all conditionals
     """
-    def test_max(self):
+    def test_max_limited(self):
+        '''
+        Add and confirm 1,2,3,1,1,1,4,reset
+        '''
         max_filter = filters.MaxFilter(3)
         max_filter.add(1)
-        assert_equals([1,1], max_filter.evaluate())
+        assert_equals(1, max_filter.evaluate())
         max_filter.add(2)
-        assert_equals([2,2], max_filter.evaluate())
+        assert_equals(2, max_filter.evaluate())
         max_filter.add(3)
-        assert_equals([3,3], max_filter.evaluate())
+        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals([3,3], max_filter.evaluate())
+        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals([3,3], max_filter.evaluate())
+        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals([1,3], max_filter.evaluate())
+        assert_equals(1, max_filter.evaluate())
         max_filter.add(4)
-        assert_equals([4,4], max_filter.evaluate())
+        assert_equals(4, max_filter.evaluate())
         max_filter.reset()
-        assert_equals([0,0], max_filter.evaluate())
+        assert_equals(0, max_filter.evaluate())
 
-    def test_min(self):
+    def test_min_limited(self):
+        '''
+        Add and confirm 1,2,3,3,3,1,0,reset,1
+        '''
         min_filter = filters.MinFilter(3)
         min_filter.add(1)
-        assert_equals([1,1], min_filter.evaluate())
+        assert_equals(1, min_filter.evaluate())
         min_filter.add(2)
-        assert_equals([1,1], min_filter.evaluate())
+        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals([1,1], min_filter.evaluate())
+        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals([2,1], min_filter.evaluate())
+        assert_equals(2, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals([3,1], min_filter.evaluate())
+        assert_equals(3, min_filter.evaluate())
         min_filter.add(1)
-        assert_equals([1,1], min_filter.evaluate())
+        assert_equals(1, min_filter.evaluate())
         min_filter.add(0)
-        assert_equals([0,0], min_filter.evaluate())
+        assert_equals(0, min_filter.evaluate())
         min_filter.reset()
         min_filter.add(1)
-        assert_equals([1,1], min_filter.evaluate())
+        assert_equals(1, min_filter.evaluate())
 
-    def test_avg(self):
+    def test_avg_limited(self):
+        '''
+        Add and confirm 1,2,3,3,reset
+        '''
         avg_filter = filters.AvgFilter(3)
         avg_filter.add(1)
-        assert_equals([1,1], avg_filter.evaluate())
+        assert_equals(1, avg_filter.evaluate())
         avg_filter.add(2)
-        assert_equals([1.5,1.5], avg_filter.evaluate())
+        assert_equals(1.5, avg_filter.evaluate())
         avg_filter.add(3)
-        assert_equals([2,2], avg_filter.evaluate())
+        assert_equals(2, avg_filter.evaluate())
         avg_filter.add(3)
-        assert_equals([8/3,3], avg_filter.evaluate())
+        assert_almost_equal(2.666666, avg_filter.evaluate(), 4)
+        avg_filter.add(3)
+        assert_equals(3, avg_filter.evaluate())
         avg_filter.reset()
-        assert_equals([0,0], avg_filter.evaluate())
+        assert_equals(0, avg_filter.evaluate())
+
+    def test_max_unlimited(self):
+        '''
+        Add and confirm 1,2,3,1,1,1,4,reset
+        '''
+        max_filter = filters.MaxFilter(filters.LIMITLESS)
+        max_filter.add(1)
+        assert_equals(1, max_filter.evaluate())
+        max_filter.add(2)
+        assert_equals(2, max_filter.evaluate())
+        max_filter.add(3)
+        assert_equals(3, max_filter.evaluate())
+        max_filter.add(3)
+        assert_equals(3, max_filter.evaluate())
+        max_filter.add(3)
+        assert_equals(3, max_filter.evaluate())
+        max_filter.add(4)
+        assert_equals(4, max_filter.evaluate())
+        max_filter.reset()
+        assert_equals(0, max_filter.evaluate())
+
+    def test_min_unlimited(self):
+        '''
+        Add and confirm 1,2,3,3,3,1,0,reset,1
+        '''
+        min_filter = filters.MinFilter(filters.LIMITLESS)
+        min_filter.add(1)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(2)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(3)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(3)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(3)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(1)
+        assert_equals(1, min_filter.evaluate())
+        min_filter.add(0)
+        assert_equals(0, min_filter.evaluate())
+        min_filter.reset()
+        min_filter.add(1)
+        assert_equals(1, min_filter.evaluate())
+
+    def test_avg_unlimited(self):
+        '''
+        Add and confirm 1,2,3,3,reset
+        '''
+        avg_filter = filters.AvgFilter(filters.LIMITLESS)
+        avg_filter.add(1)
+        assert_equals(1, avg_filter.evaluate())
+        avg_filter.add(2)
+        assert_equals(1.5, avg_filter.evaluate())
+        avg_filter.add(3)
+        assert_equals(2, avg_filter.evaluate())
+        avg_filter.add(3)
+        assert_almost_equal(2.25, avg_filter.evaluate(), 4)
+        avg_filter.add(-9)
+        assert_equals(0, avg_filter.evaluate())
+        avg_filter.reset()
+        assert_equals(0, avg_filter.evaluate())
 
 class BoundaryTests(TestCase):
     """

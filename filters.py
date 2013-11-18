@@ -23,57 +23,53 @@ class Filter(object):
         Constructor............................
         """
         self.memory_size = size
-        self.short_term = []
-        self.long_term = []
+        self.values = []
         print "Initted with size of: " + str(self.memory_size)
         
     def reset(self):
         """
         Resets the values previous input so far
         """
-        #store return values first
-        self.short_term = []
-        self.long_term = []
+        self.values = []
         print "Reset"
 
     def add(self, value):
         """
         Adds a value to the filter
         """
-        self.short_term.append(value)
-        self.long_term.append(value)
+        self.values.append(value)
         print ("Added" + str(value))
 
-        if len(self.short_term) > self.memory_size:
-            print "Forgot" + str(self.short_term[0])
-            self.short_term = self.short_term[1:]
+        if len(self.values) > self.memory_size and self.memory_size != LIMITLESS:
+            print "Forgot" + str(self.values[0])
+            self.values = self.values[1:]
 
     def evaluate(self):
         raise NotImplementedError("This needs implemented")
 
 class MaxFilter(Filter):
     def evaluate(self):
-        if len(self.short_term) == 0:
-            return [0,0]
-        return [max(self.short_term), max(self.long_term)]
+        if len(self.values) == 0:
+            return 0
+        return max(self.values)
 
 class MinFilter(Filter):
     def evaluate(self):
-        if len(self.short_term) == 0:
-            return [0,0]
-        return [min(self.short_term), min(self.long_term)]
+        if len(self.values) == 0:
+            return 0
+        return min(self.values)
 
 class AvgFilter(Filter):
     def evaluate(self):
-        if len(self.short_term) == 0:
-            return [0,0]
-        print self.short_term
-        print sum(self.short_term)
-        print len(self.short_term)
-        print sum(self.short_term)/len(self.short_term)
-        print self.long_term
-        return [sum(self.short_term)/len(self.short_term),
-                sum(self.long_term)/len(self.short_term)]
+        if len(self.values) == 0:
+            return 0
+        print self.values
+        print sum(self.values)
+        print len(self.values)
+        print sum(self.values)/len(self.values)
+        total = sum(self.values)/len(self.values)
+        print self.values
+        return total
 
 class CascadeFilter(Filter):
     def __init__(self, first_filter, second_filter):
