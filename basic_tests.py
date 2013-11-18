@@ -165,6 +165,15 @@ class BasisTests(TestCase):
         cascade.add(1)
         assert_equals(2, cascade.evaluate())
 
+    def test_scalar_linear(self):
+        outs = [.1, .1, .1]
+        ins = [.5, .5, .5]
+        scalar = filters.ScalarLinearFilter(ins, outs)
+        scalar.add(-1)
+        scalar.add(1)
+        scalar.add(2)
+
+
 class BoundaryTests(TestCase):
     """
     Test for off-by-one errors: just above/below/on min

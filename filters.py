@@ -66,7 +66,7 @@ class CascadeFilter(Filter):
     """
     Lets you feed one filter into another
     """
-    def __init__(self, first_filter, second_filter, a, b):
+    def __init__(self, first_filter, second_filter):
         self.first = first_filter
         self.second = second_filter
 
@@ -82,7 +82,29 @@ class ScalarLinearFilter(Filter):
     Funny working filter...
     ...I don't understand it.
     """
-    pass
+    def __init__(self, ins, outs):
+        '''ins are input weights b, and outs are output weights a'''
+        self.in_weights = ins
+        self.out_weights = outs
+        self.inputs = [0]
+        self.outputs = [0]
+    
+    def add(self, value):
+        #(input + prev input) * weight b - previous output * weight a
+        self.inputs.append(value)
+        input_vals= (self.inputs[-1]+self.inputs[-2])*self.in_weights[len(self.inputs)-2]
+        output_vals = self.outputs[-1]*self.out_weights[len(self.outputs) -1]
+        self.outputs.append(input_vals-output_vals)
+        print input_vals
+        print output_vals
+        return self.outputs[-1]
+
+    def reset(self, value):
+        self.outputs = [0]
+        for index, value in self.inputs:
+            inputs[index] = value
+            self.outputs.append(value)
+
 
 class FIRFilter(Filter):
     """
