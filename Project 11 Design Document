@@ -1,0 +1,39 @@
+Project 11 Design Document
+Frank Singel
+
+Class Hierarchy
+
+Class Filter
+	Methods:
+		init
+		reset
+		add
+		__eq__
+		evaluate (Raises error, since it's meant to be overridden)
+
+	Subclasses:
+		Class MinFilter, MaxFilter, AvgFilter
+			Overridden Methods:
+				evaluate
+		Class CascadeFilter
+			Overridden Methods:
+				init
+				add
+				evaluate
+		Class ScalarFilter
+			Overridden Methods:
+				init
+				add
+				reset
+			Subclasses:
+				Class BinomialFilter
+					Overridden Methods:
+						init
+						reset
+						add
+					_grow_gain
+		Class FIRFilter
+			Overridden Methods:
+				init
+				add
+				evaluate

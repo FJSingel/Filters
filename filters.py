@@ -22,7 +22,10 @@ class Filter(object):
         memory_size is how many inputs are remembered
         Other two are the history of inputs and outputs
         """
-        self.memory_size = size
+        if size > 1:
+            self.memory_size = size
+        else:
+            self.memory_size = LIMITLESS
         self.inputs = []
         self.outputs = []
         
@@ -37,11 +40,10 @@ class Filter(object):
         """
         Adds a value to the filter
         """
+        self.number_or_raise(value)
         self.inputs.append(value)
-
         if len(self.inputs) > self.memory_size and self.memory_size != LIMITLESS:
             self.inputs = self.inputs[1:]
-
         self.outputs.append(self.evaluate())
 
     def __eq__(self, other):
@@ -49,6 +51,10 @@ class Filter(object):
 
     def evaluate(self):
         raise NotImplementedError("This needs implemented")
+
+    def number_or_raise(self, value):
+        if not isinstance(value, float) and not isinstance(value, int):
+            raise TypeError
 
 class MaxFilter(Filter):
     def evaluate(self):
@@ -74,11 +80,15 @@ class CascadeFilter(Filter):
     Lets you feed one filter into another
     """
     def __init__(self, first_filter, second_filter):
+
+        if not isinstance(first_filter, Filter) or not isinstance(second_filter, Filter):
+            raise TypeError
         self.first = first_filter
         self.second = second_filter
         self.outputs = []
 
     def add(self, value):
+        self.number_or_raise(value)
         self.first.add(value)
         self.second.add(self.first.evaluate())
         self.outputs.append(self.second.evaluate())
@@ -103,6 +113,7 @@ class ScalarLinearFilter(Filter):
     
     def add(self, value):
         #output = (input + prev input) * weight b - previous output * weight a
+        self.number_or_raise(value)
         if len(self.inputs) == 0:
             self.inputs.append(value)
             input_vals = self.inputs[0]*self.in_weights[0]
@@ -117,6 +128,7 @@ class ScalarLinearFilter(Filter):
         return self.outputs[-1]
 
     def reset(self, value):
+        self.number_or_raise(value)
         self.outputs = []
         self.inputs = []
         for index, value in enumerate(self.inputs):
@@ -129,11 +141,13 @@ class FIRFilter(Filter):
     Multiplies each value by the constructor's argument
     """
     def __init__(self, multiplier):
+        self.number_or_raise(multiplier)
         self.gain = multiplier
         self.inputs = []
         self.outputs = []
 
     def add(self, value):
+        self.number_or_raise(value)
         self.inputs.append(value)
         self.outputs.append(self.evaluate())
 
@@ -149,18 +163,17 @@ class BinomialFilter(ScalarLinearFilter):
          1 3 3 1
     """
     def __init__(self):
-        self.gain = []
-        self.inputs = []
-        self.outputs = []
-        self.temp_outputs = []
+        self.gain = [] #weights
+        self.inputs = [] #series of inputs
+        self.outputs = [] #history of outputs
 
     def reset(self):
         self.gain = []
         self.inputs = []
         self.outputs = []
-        self.temp_outputs = []
 
     def add(self, value):
+        self.number_or_raise(value)
         self._grow_gain()
         if len(self.inputs) == 0:
             self.inputs.append(value)
@@ -185,6 +198,3 @@ class BinomialFilter(ScalarLinearFilter):
                 else:
                     temp_gain.append(value + self.gain[index + 1])
             self.gain = temp_gain
-
-        
-

@@ -11,10 +11,10 @@ import filters
 EXIT_SUCCESS = True
 EXIT_FAILURE = False
 
-class BasisTests(TestCase):
-    """
-    Tests all conditionals
-    """
+class BasicTests(TestCase):
+    '''
+    Tests each general filter
+    '''
     def test_max_limited(self):
         '''
         Add and confirm 1,2,3,1,1,1,4,reset
@@ -168,6 +168,7 @@ class BasisTests(TestCase):
         assert_equals([1,4,6,4,1], binom.gain)
         binom.add(5)
         assert_equals([1,5,10,10,5,1], binom.gain)
+        print binom.outputs
 
     def test_eqs(self):
         '''Compares 3 filters'''
@@ -181,45 +182,6 @@ class BasisTests(TestCase):
         min_filter1.add(5)
         assert_not_equal(min_filter1, min_filter2)
         assert_not_equal(max_filter, min_filter2)
-
-
-class BoundaryTests(TestCase):
-    """
-    Test for off-by-one errors: just above/below/on min
-    Contains most of BadData tests
-    """
-    def test_min_input(self):
-        pass
-
-    def test_no_number(self):
-        pass
-
-class DataFlow(TestCase):
-    """
-    Test as many if's as possible
-    """
-    @class_setup
-    def setUp(self):
-        pass
-
-    def test_multiple_lines(self):
-        pass
-
-class BadData(TestCase):
-    """
-    Test some bad data
-    """
-    def test_bad_number(self):
-        pass
-
-class StressTest(TestCase):
-    """
-    Some stress testing
-    """
-
-    @suite('stress', reason="Time Intensive Stress Test not needed on every test run")
-    def test_more_input(self):
-        pass
 
 if __name__ == '__main__':
     run()
