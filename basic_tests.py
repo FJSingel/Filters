@@ -7,14 +7,15 @@ from testify import *
 
 import filters
 
-#Constants for checking error handling
-EXIT_SUCCESS = True
-EXIT_FAILURE = False
-
-class BasicTests(TestCase):
+class FilterTests(TestCase):
     '''
     Tests each general filter
     '''
+    def test_filter(self):
+        filt = filters.Filter(3)
+        with assert_raises(NotImplementedError):
+            filt.add(5)
+
     def test_max_limited(self):
         '''
         Add and confirm 1,2,3,1,1,1,4,reset
@@ -30,6 +31,8 @@ class BasicTests(TestCase):
         assert_equals([1,2,3,3,3,1,4], max_filter.outputs)
         max_filter.reset()
         assert_equals([], max_filter.outputs)
+
+
 
     def test_min_limited(self):
         '''
@@ -139,9 +142,13 @@ class BasicTests(TestCase):
         scalar.add(2)
         scalar.add(1)
         assert_equals([-0.5, 1.05, 1.895, 1.3105, 1.36895], scalar.outputs)
-        scalar.add(2) #test what happens if you have more inputs than weights
+        scalar.add(2) #test what happens if you have more inputs than weights. Should ignore.
         assert_equals([-0.5, 1.05, 1.895, 1.3105, 1.36895], scalar.outputs)
-        
+
+        #ensure that it doesn't accept unequal weight counts
+        with assert_raises(ValueError):
+            scalar2 = filters.ScalarLinearFilter(ins, outs[1:])
+
     def test_FIR(self):
         '''
         Test input of 1,2,3,reset,5 for a filter of gain = 3
@@ -161,17 +168,17 @@ class BasicTests(TestCase):
         '''
         binom = filters.BinomialFilter()
         binom.add(1)
-        binom.add(5)
-        binom.add(5)
         binom.add(1)
-        binom.add(5)
+        binom.add(1)
+        binom.add(1)
+        binom.add(1)
         assert_equals([1,4,6,4,1], binom.gain)
-        binom.add(5)
+        binom.add(1)
         assert_equals([1,5,10,10,5,1], binom.gain)
         print binom.outputs
 
     def test_eqs(self):
-        '''Compares 3 filters'''
+        '''Tests filter equality'''
         min_filter1 = filters.MinFilter(3)
         min_filter2 = filters.MinFilter(3)
         min_filter3 = filters.MinFilter(2)
@@ -182,6 +189,8 @@ class BasicTests(TestCase):
         min_filter1.add(5)
         assert_not_equal(min_filter1, min_filter2)
         assert_not_equal(max_filter, min_filter2)
+        min_filter2.add(5)
+        assert_equals(min_filter1, min_filter2)
 
 if __name__ == '__main__':
     run()
