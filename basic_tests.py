@@ -1,14 +1,7 @@
 """
 Unit tests for filters
 Frank Singel
-
-TODO:
-LINE NUMBERS ARE SUBJECT TO CHANGE!!!
-Locations for structured basis testing
 """
-
-from mock import patch
-from StringIO import StringIO
 
 from testify import *
 
@@ -28,65 +21,44 @@ class BasisTests(TestCase):
         '''
         max_filter = filters.MaxFilter(3)
         max_filter.add(1)
-        assert_equals(1, max_filter.evaluate())
         max_filter.add(2)
-        assert_equals(2, max_filter.evaluate())
         max_filter.add(3)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(1)
-        assert_equals(1, max_filter.evaluate())
         max_filter.add(4)
-        assert_equals(4, max_filter.evaluate())
-        # print max_filter.outputs
+        assert_equals([1,2,3,3,3,1,4], max_filter.outputs)
         max_filter.reset()
-        assert_equals(0, max_filter.evaluate())
+        assert_equals([], max_filter.outputs)
 
     def test_min_limited(self):
         '''
-        Add and confirm 1,2,3,3,3,1,0,reset,1
+        Add and confirm 1,2,3,3,3,1,0,reset
         '''
         min_filter = filters.MinFilter(3)
         min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(2)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(2, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(3, min_filter.evaluate())
         min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(0)
-        assert_equals(0, min_filter.evaluate())
-        # print min_filter.outputs
+        assert_equals([1,1,1,2,3,1,0], min_filter.outputs)
         min_filter.reset()
-        min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
+        assert_equals([], min_filter.outputs)
 
     def test_avg_limited(self):
         '''
-        Add and confirm 1,2,3,3,reset
+        Add and confirm 3,6,9,9,reset
         '''
         avg_filter = filters.AvgFilter(3)
-        avg_filter.add(1)
-        assert_equals(1, avg_filter.evaluate())
-        avg_filter.add(2)
-        assert_equals(1.5, avg_filter.evaluate())
         avg_filter.add(3)
-        assert_equals(2, avg_filter.evaluate())
-        avg_filter.add(3)
-        assert_almost_equal(2.666666, avg_filter.evaluate(), 4)
-        avg_filter.add(3)
-        assert_equals(3, avg_filter.evaluate())
-        # print avg_filter.outputs
+        avg_filter.add(6)
+        avg_filter.add(9)
+        avg_filter.add(9)
+        assert_equals([3.0, 4.5, 6.0, 8.0], avg_filter.outputs)
         avg_filter.reset()
-        assert_equals(0, avg_filter.evaluate())
+        assert_equals([], avg_filter.outputs)
 
     def test_max_unlimited(self):
         '''
@@ -94,20 +66,14 @@ class BasisTests(TestCase):
         '''
         max_filter = filters.MaxFilter(filters.LIMITLESS)
         max_filter.add(1)
-        assert_equals(1, max_filter.evaluate())
         max_filter.add(2)
-        assert_equals(2, max_filter.evaluate())
         max_filter.add(3)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(3)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(3)
-        assert_equals(3, max_filter.evaluate())
         max_filter.add(4)
-        assert_equals(4, max_filter.evaluate())
-        # print max_filter.outputs
+        assert_equals([1,2,3,3,3,4], max_filter.outputs)
         max_filter.reset()
-        assert_equals(0, max_filter.evaluate())
+        assert_equals([], max_filter.outputs)
 
     def test_min_unlimited(self):
         '''
@@ -115,42 +81,30 @@ class BasisTests(TestCase):
         '''
         min_filter = filters.MinFilter(filters.LIMITLESS)
         min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(2)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(3)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
         min_filter.add(0)
-        assert_equals(0, min_filter.evaluate())
-        # print min_filter.outputs
+        assert_equals([1,1,1,1,1,1,0], min_filter.outputs)
         min_filter.reset()
         min_filter.add(1)
-        assert_equals(1, min_filter.evaluate())
+        assert_equals([1], min_filter.outputs)
 
     def test_avg_unlimited(self):
         '''
-        Add and confirm 1,2,3,3,reset
+        Add and confirm 1,2,3,3,-9,reset
         '''
         avg_filter = filters.AvgFilter(filters.LIMITLESS)
         avg_filter.add(1)
-        assert_equals(1, avg_filter.evaluate())
         avg_filter.add(2)
-        assert_equals(1.5, avg_filter.evaluate())
         avg_filter.add(3)
-        assert_equals(2, avg_filter.evaluate())
         avg_filter.add(3)
-        assert_almost_equal(2.25, avg_filter.evaluate(), 4)
         avg_filter.add(-9)
-        assert_equals(0, avg_filter.evaluate())
-        # print avg_filter.outputs
+        assert_equals([1.0, 1.5, 2.0, 2.25, 0.0], avg_filter.outputs)
         avg_filter.reset()
-        assert_equals(0, avg_filter.evaluate())
+        assert_equals([], avg_filter.outputs)
 
     def test_cascade(self):
         '''
@@ -161,20 +115,18 @@ class BasisTests(TestCase):
         cascade = filters.CascadeFilter(max_filter, min_filter)
 
         cascade.add(-1)
-        assert_equals(-1, cascade.evaluate())
         cascade.add(3)
-        assert_equals(-1, cascade.evaluate())
         cascade.add(1)
-        assert_equals(-1, cascade.evaluate())
         cascade.add(2)
-        assert_equals(2, cascade.evaluate())
         cascade.add(1)
-        assert_equals(2, cascade.evaluate())
-        # print cascade.outputs
+        assert_equals([-1,-1,-1,2,2], cascade.outputs)
 
     def test_scalar_linear(self):
-        outs = [.1, .1, .1]
-        ins = [.5, .5, .5]
+        '''
+        Test input from project description
+        '''
+        outs = [.1, .1, .1, .1, .1]
+        ins = [.5, .5, .5, .5, .5]
         scalar = filters.ScalarLinearFilter(ins, outs)
         scalar.add(-1)
         scalar.add(1)
@@ -184,9 +136,16 @@ class BasisTests(TestCase):
         scalar.add(-1)
         scalar.add(3)
         scalar.add(1)
-        assert_equals([-0.5, 1.05, 1.895], scalar.outputs)
+        scalar.add(2)
+        scalar.add(1)
+        assert_equals([-0.5, 1.05, 1.895, 1.3105, 1.36895], scalar.outputs)
+        scalar.add(2) #test what happens if you have more inputs than weights
+        assert_equals([-0.5, 1.05, 1.895, 1.3105, 1.36895], scalar.outputs)
         
     def test_FIR(self):
+        '''
+        Test input of 1,2,3,reset,5 for a filter of gain = 3
+        '''
         fir = filters.FIRFilter(3)
         fir.add(1)
         fir.add(2)
@@ -197,12 +156,16 @@ class BasisTests(TestCase):
         assert_equals([15], fir.outputs)
 
     def test_binomial(self):
+        '''
+        Test the growth of pascal's triangle
+        '''
         binom = filters.BinomialFilter()
         binom.add(1)
         binom.add(5)
         binom.add(5)
         binom.add(1)
         binom.add(5)
+        assert_equals([1,4,6,4,1], binom.gain)
         binom.add(5)
         assert_equals([1,5,10,10,5,1], binom.gain)
 

@@ -103,11 +103,12 @@ class ScalarLinearFilter(Filter):
     
     def add(self, value):
         #output = (input + prev input) * weight b - previous output * weight a
-
         if len(self.inputs) == 0:
             self.inputs.append(value)
             input_vals = self.inputs[0]*self.in_weights[0]
             self.outputs.append(input_vals)
+        elif len(self.inputs) == len(self.in_weights) or len(self.inputs) == len(self.out_weights): #If you're out of weights to use, ignore input
+            pass
         else:
             input_vals= (value+self.inputs[-1])*self.in_weights[len(self.inputs)-1]
             output_vals = self.outputs[-1]*self.out_weights[len(self.outputs)-1]
