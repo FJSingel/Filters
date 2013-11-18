@@ -169,9 +169,14 @@ class BasisTests(TestCase):
         outs = [.1, .1, .1]
         ins = [.5, .5, .5]
         scalar = filters.ScalarLinearFilter(ins, outs)
-        scalar.add(-1)
-        scalar.add(1)
-        scalar.add(2)
+        print scalar.add(-1)
+        print scalar.add(1)
+        print scalar.add(2)
+        scalar.reset(0)
+        print scalar.add(-1)
+        print scalar.add(3)
+        print scalar.add(1)
+        
 
 
 class BoundaryTests(TestCase):

@@ -24,18 +24,21 @@ class Filter(object):
         """
         self.memory_size = size
         self.values = []
+        self.results = []
         
     def reset(self):
         """
         Resets the values previous input so far
         """
         self.values = []
+        self.results = []
 
     def add(self, value):
         """
         Adds a value to the filter
         """
         self.values.append(value)
+        #self.results.append
 
         if len(self.values) > self.memory_size and self.memory_size != LIMITLESS:
             self.values = self.values[1:]
@@ -90,19 +93,20 @@ class ScalarLinearFilter(Filter):
         self.outputs = [0]
     
     def add(self, value):
-        #(input + prev input) * weight b - previous output * weight a
+        #output = (input + prev input) * weight b - previous output * weight a
         self.inputs.append(value)
         input_vals= (self.inputs[-1]+self.inputs[-2])*self.in_weights[len(self.inputs)-2]
         output_vals = self.outputs[-1]*self.out_weights[len(self.outputs) -1]
         self.outputs.append(input_vals-output_vals)
-        print input_vals
-        print output_vals
+        #print input_vals
+        #print output_vals
         return self.outputs[-1]
 
     def reset(self, value):
         self.outputs = [0]
-        for index, value in self.inputs:
-            inputs[index] = value
+        self.inputs = [0]
+        for index, value in enumerate(self.inputs):
+            self.inputs[index] = value
             self.outputs.append(value)
 
 
