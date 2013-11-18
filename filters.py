@@ -9,8 +9,6 @@ This module manages the creation and function of filters.
 """
 
 from __future__ import division
-import copy
-import sys 
 
 LIMITLESS = -1;
 
@@ -20,50 +18,55 @@ class Filter(object):
     """
     def __init__(self, size):
         """
-        Constructor............................
+        Constructor
+        memory_size is how many inputs are remembered
+        Other two are the history of inputs and outputs
         """
         self.memory_size = size
-        self.values = []
+        self.inputs = []
         self.outputs = []
         
     def reset(self):
         """
-        Resets the values previous input so far
+        Resets the inputs previous input so far
         """
-        self.values = []
+        self.inputs = []
         self.outputs = []
 
     def add(self, value):
         """
         Adds a value to the filter
         """
-        self.values.append(value)
+        self.inputs.append(value)
 
-        if len(self.values) > self.memory_size and self.memory_size != LIMITLESS:
-            self.values = self.values[1:]
+        if len(self.inputs) > self.memory_size and self.memory_size != LIMITLESS:
+            self.inputs = self.inputs[1:]
 
         self.outputs.append(self.evaluate())
+
+    def __eq__(self, other):
+        return self.memory_size == other.memory_size and self.outputs == other.outputs
 
     def evaluate(self):
         raise NotImplementedError("This needs implemented")
 
 class MaxFilter(Filter):
     def evaluate(self):
-        if len(self.values) == 0:
+        if len(self.inputs) == 0:
             return 0
-        return max(self.values)
+        return max(self.inputs)
 
 class MinFilter(Filter):
     def evaluate(self):
-        if len(self.values) == 0:
+        if len(self.inputs) == 0:
             return 0
-        return min(self.values)
+        return min(self.inputs)
 
 class AvgFilter(Filter):
     def evaluate(self):
-        if len(self.values) == 0:
+        if len(self.inputs) == 0:
             return 0
-        total = sum(self.values)/len(self.values)
+        total = sum(self.inputs)/len(self.inputs)
         return total
 
 class CascadeFilter(Filter):
@@ -85,8 +88,11 @@ class CascadeFilter(Filter):
 
 class ScalarLinearFilter(Filter):
     """
-    Funny working filter...
-    ...I don't understand it.
+    Creates output equal to the equation:
+        Yi = (Xi + Xi-1)*Bi - (Yi-1)*Ai
+        Where Y is output value
+        X is input value
+        B and A are in and out weights
     """
     def __init__(self, ins, outs):
         '''ins are input weights b, and outs are output weights a'''
@@ -123,13 +129,19 @@ class FIRFilter(Filter):
     """
     def __init__(self, multiplier):
         self.gain = multiplier
+        self.inputs = []
+        self.outputs = []
+
+    def add(self, value):
+        self.inputs.append(value)
+        self.outputs.append(self.evaluate())
 
     def evaluate(self):
-        return self.values[-1] * self.gain
+        return self.inputs[-1] * self.gain
 
-class BinomialFilter(FIRFilter):
+class BinomialFilter(ScalarLinearFilter):
     """
-    It has coefficients based on length:
+    It has in_weights coefficients based on length:
             1
            1 1
           1 2 1
@@ -137,19 +149,35 @@ class BinomialFilter(FIRFilter):
     """
     def __init__(self):
         self.gain = []
-        self.values = []
+        self.inputs = []
         self.outputs = []
+        self.temp_outputs = []
+
+    def reset(self):
+        self.gain = []
+        self.inputs = []
+        self.outputs = []
+        self.temp_outputs = []
 
     def add(self, value):
-        self.values.append(value)
         self._grow_gain()
+        if len(self.inputs) == 0:
+            self.inputs.append(value)
+            self.outputs.append(value)
+        else:
+            input_vals = (value+self.inputs[-1])*self.gain[len(self.inputs)-1]
+            self.inputs.append(value)
+            self.outputs.append(input_vals)
+        return self.outputs[-1]
 
     def _grow_gain(self):
+        '''
+        Moves the gain list to the next row of Pascal's Triangle
+        '''
         if(self.gain == []):
             self.gain = [1]
         else:
-            temp_gain = [1]      # 1 2 
-            #self.gain.append(0)  # 1 1 0
+            temp_gain = [1]
             for index, value in enumerate(self.gain):
                 if index == (len(self.gain)-1):
                     temp_gain.append(1)
