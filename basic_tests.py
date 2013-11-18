@@ -146,6 +146,25 @@ class BasisTests(TestCase):
         avg_filter.reset()
         assert_equals(0, avg_filter.evaluate())
 
+    def test_cascade(self):
+        '''
+        Feed Max2 into Min3 using values from pdf
+        '''
+        min_filter = filters.MinFilter(3)
+        max_filter = filters.MaxFilter(2)
+        cascade = filters.CascadeFilter(max_filter, min_filter)
+
+        cascade.add(-1)
+        assert_equals(-1, cascade.evaluate())
+        cascade.add(3)
+        assert_equals(-1, cascade.evaluate())
+        cascade.add(1)
+        assert_equals(-1, cascade.evaluate())
+        cascade.add(2)
+        assert_equals(2, cascade.evaluate())
+        cascade.add(1)
+        assert_equals(2, cascade.evaluate())
+
 class BoundaryTests(TestCase):
     """
     Test for off-by-one errors: just above/below/on min

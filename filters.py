@@ -24,24 +24,20 @@ class Filter(object):
         """
         self.memory_size = size
         self.values = []
-        print "Initted with size of: " + str(self.memory_size)
         
     def reset(self):
         """
         Resets the values previous input so far
         """
         self.values = []
-        print "Reset"
 
     def add(self, value):
         """
         Adds a value to the filter
         """
         self.values.append(value)
-        print ("Added" + str(value))
 
         if len(self.values) > self.memory_size and self.memory_size != LIMITLESS:
-            print "Forgot" + str(self.values[0])
             self.values = self.values[1:]
 
     def evaluate(self):
@@ -63,14 +59,48 @@ class AvgFilter(Filter):
     def evaluate(self):
         if len(self.values) == 0:
             return 0
-        print self.values
-        print sum(self.values)
-        print len(self.values)
-        print sum(self.values)/len(self.values)
         total = sum(self.values)/len(self.values)
-        print self.values
         return total
 
 class CascadeFilter(Filter):
-    def __init__(self, first_filter, second_filter):
-        pass
+    """
+    Lets you feed one filter into another
+    """
+    def __init__(self, first_filter, second_filter, a, b):
+        self.first = first_filter
+        self.second = second_filter
+
+    def add(self, value):
+        self.first.add(value)
+        self.second.add(self.first.evaluate())
+
+    def evaluate(self):
+        return self.second.evaluate()
+
+class ScalarLinearFilter(Filter):
+    """
+    Funny working filter...
+    ...I don't understand it.
+    """
+    pass
+
+class FIRFilter(Filter):
+    """
+    Multiplies each value by the constructor's argument
+    """
+    def __init__(self, multiplier):
+        self.gain = multiplier
+
+    def evaluate(self):
+        return self.values[-1] * self.gain
+
+class BinomialFilter(Filter):
+    """
+    What is this asking?
+    It has something to do with:
+            1
+           1 1
+          1 2 1
+         1 3 3 1
+    """
+    pass
