@@ -41,6 +41,7 @@ class BasisTests(TestCase):
         assert_equals(1, max_filter.evaluate())
         max_filter.add(4)
         assert_equals(4, max_filter.evaluate())
+        print max_filter.outputs
         max_filter.reset()
         assert_equals(0, max_filter.evaluate())
 
@@ -63,6 +64,7 @@ class BasisTests(TestCase):
         assert_equals(1, min_filter.evaluate())
         min_filter.add(0)
         assert_equals(0, min_filter.evaluate())
+        print min_filter.outputs
         min_filter.reset()
         min_filter.add(1)
         assert_equals(1, min_filter.evaluate())
@@ -82,6 +84,7 @@ class BasisTests(TestCase):
         assert_almost_equal(2.666666, avg_filter.evaluate(), 4)
         avg_filter.add(3)
         assert_equals(3, avg_filter.evaluate())
+        print avg_filter.outputs
         avg_filter.reset()
         assert_equals(0, avg_filter.evaluate())
 
@@ -102,6 +105,7 @@ class BasisTests(TestCase):
         assert_equals(3, max_filter.evaluate())
         max_filter.add(4)
         assert_equals(4, max_filter.evaluate())
+        print max_filter.outputs
         max_filter.reset()
         assert_equals(0, max_filter.evaluate())
 
@@ -124,6 +128,7 @@ class BasisTests(TestCase):
         assert_equals(1, min_filter.evaluate())
         min_filter.add(0)
         assert_equals(0, min_filter.evaluate())
+        print min_filter.outputs
         min_filter.reset()
         min_filter.add(1)
         assert_equals(1, min_filter.evaluate())
@@ -143,6 +148,7 @@ class BasisTests(TestCase):
         assert_almost_equal(2.25, avg_filter.evaluate(), 4)
         avg_filter.add(-9)
         assert_equals(0, avg_filter.evaluate())
+        print avg_filter.outputs
         avg_filter.reset()
         assert_equals(0, avg_filter.evaluate())
 
@@ -164,6 +170,7 @@ class BasisTests(TestCase):
         assert_equals(2, cascade.evaluate())
         cascade.add(1)
         assert_equals(2, cascade.evaluate())
+        print cascade.outputs
 
     def test_scalar_linear(self):
         outs = [.1, .1, .1]
@@ -172,11 +179,27 @@ class BasisTests(TestCase):
         print scalar.add(-1)
         print scalar.add(1)
         print scalar.add(2)
+        print scalar.outputs
         scalar.reset(0)
         print scalar.add(-1)
         print scalar.add(3)
         print scalar.add(1)
+        print scalar.outputs
         
+    def test_binomial(self):
+        binom = filters.BinomialFilter()
+        binom.add(1)
+        print binom.gain
+        binom.add(5)
+        print binom.gain
+        binom.add(5)
+        print binom.gain
+        binom.add(1)
+        print binom.gain
+        binom.add(5)
+        print binom.gain
+        binom.add(5)
+        print binom.gain
 
 
 class BoundaryTests(TestCase):
