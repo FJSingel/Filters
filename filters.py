@@ -1,5 +1,6 @@
 """
 Created on Nov 14, 2013
+Last updated Dec 1, 2013
 
 @author: Frank Singel
 FJS52@case.edu
@@ -114,8 +115,7 @@ class ScalarLinearFilter(Filter):
             input_vals = self.inputs[0]*self.in_weights[0]
             self.outputs.append(input_vals)
         elif len(self.inputs) == len(self.in_weights) or len(self.inputs) == len(self.out_weights):
-            #If you're out of weights to use, ignore input
-            pass
+            pass    #If you're out of weights to use, ignore input
         else:
             input_vals= (value+self.inputs[-1])*self.in_weights[len(self.inputs)-1]
             output_vals = self.outputs[-1]*self.out_weights[len(self.outputs)-1]
@@ -171,7 +171,7 @@ class BinomialFilter(ScalarLinearFilter):
     def add(self, value):
        """This updates the gain values before putting the resulting value to output"""
         self._grow_gain()
-        if len(self.inputs) == 0:
+        if len(self.inputs) == 0: #If first input, just add it
             self.inputs.append(value)
             self.outputs.append(value)
         else:
